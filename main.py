@@ -4,12 +4,13 @@ df = pd.read_csv('hotels.csv')
 
 
 # If You want to read data in a specific format
-# df = pd.read_csv('hotels.csv', dtype={'id':str)
+# df = pd.read_csv('hotels.csv', dtype={'id':str})
 
 
 class Hotel:
     def __init__(self, hotel_id):
         self.hotel_id = hotel_id
+        self.name = df.loc[df['id'] == self.hotel_id, 'name'].squeeze()
 
     def available(self):
         # Checks the availability of a hotel
@@ -24,15 +25,21 @@ class Hotel:
         # Once booked changes the availability to no
         df.loc[df['id'] == self.hotel_id, 'available'] = "no"
         df.to_csv('hotels.csv', index=False)
-        pass
 
 
 class ReservationTicket:
     def __init__(self, customer_name, hotel_object):
-        pass
+        self.customer_name = customer_name
+        self.hotel_object = hotel_object
 
     def generate(self):
-        pass
+        content = f""" 
+        Thank Your For Booking the Hotel :)
+        Here are your Details:
+        Name : {self.customer_name}
+        Hotel Name : {self.hotel_object.name}
+        """
+        return content
 
 
 print(df)
@@ -42,7 +49,7 @@ hotel = Hotel(hotel_id)
 if hotel.available():
     hotel.book()
     name = input("Enter Your Name ")
-    ticket = ReservationTicket(name, hotel)
+    ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
     print(ticket.generate())
 else:
     print("The hotel is not available ")
