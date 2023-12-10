@@ -3,6 +3,7 @@ import pandas as pd
 df = pd.read_csv('hotels.csv')
 
 df_card = pd.read_csv('cards.csv', dtype=str).to_dict(orient='records')
+df_card_security = pd.read_csv('card_security.csv',dtype=str)
 
 
 # If You want to read data in a specific format
@@ -43,7 +44,7 @@ class ReservationTicket:
         return content
 
 
-class Card():
+class Card:
     def __init__(self, number):
         self.number = number
 
@@ -56,17 +57,29 @@ class Card():
             return False
 
 
+class SecureCreditCard(Card):
+    def authenticate(self,given_password):
+        password = df_card_security.loc[df_card_security['number']==self.number, 'password'].squeeze()
+        if given_password == password:
+            return True
+        else:
+            return False
+
+
 print(df)
 hotel_id = int(input("Enter the id of the hotel you want to book "))
 hotel = Hotel(hotel_id)
 
 if hotel.available():
-    card = Card('5678901234567890')
+    card = SecureCreditCard('5678901234567890')
     if card.validate(expiration='12/28', cvc='456', name='JANE SMITH'):
-        hotel.book()
-        name = input("Enter Your Name ")
-        ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
-        print(ticket.generate())
+        if card.authenticate(given_password='mypass1'):
+            hotel.book()
+            name = input("Enter Your Name ")
+            ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
+            print(ticket.generate())
+        else:
+            print("Credit card Authentication Failed")
     else:
         print("card not validated")
 
