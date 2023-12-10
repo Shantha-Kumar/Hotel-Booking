@@ -3,7 +3,7 @@ import pandas as pd
 df = pd.read_csv('hotels.csv')
 
 df_card = pd.read_csv('cards.csv', dtype=str).to_dict(orient='records')
-df_card_security = pd.read_csv('card_security.csv',dtype=str)
+df_card_security = pd.read_csv('card_security.csv', dtype=str)
 
 
 # If You want to read data in a specific format
@@ -44,6 +44,20 @@ class ReservationTicket:
         return content
 
 
+class SpaTicket:
+    def __init__(self, hotel_object):
+        self.hotel = hotel_object
+
+    def generate_spa(self, name):
+        content = f"""
+        Thank Your For Booking the Spa Package:)
+        Here are your Details:
+        Name : {name}
+        Hotel Name : {self.hotel.name}  
+        """
+        return content
+
+
 class Card:
     def __init__(self, number):
         self.number = number
@@ -58,8 +72,8 @@ class Card:
 
 
 class SecureCreditCard(Card):
-    def authenticate(self,given_password):
-        password = df_card_security.loc[df_card_security['number']==self.number, 'password'].squeeze()
+    def authenticate(self, given_password):
+        password = df_card_security.loc[df_card_security['number'] == self.number, 'password'].squeeze()
         if given_password == password:
             return True
         else:
@@ -78,6 +92,10 @@ if hotel.available():
             name = input("Enter Your Name ")
             ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
             print(ticket.generate())
+            spa = input("Do You want Spa package? ").lower()
+            if spa == 'yes':
+                spa = SpaTicket(hotel)
+                print(spa.generate_spa(name))
         else:
             print("Credit card Authentication Failed")
     else:
